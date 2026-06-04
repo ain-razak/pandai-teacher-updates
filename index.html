@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pandai Teacher — Product Update</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
+<style>
+:root{
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#085041;
+  --pink:#E91E8C;--pink-light:#FCE4F3;--pink-dark:#9C1360;
+  --blue:#3B82F6;--purple:#8B5CF6;--orange:#F97316;--teal:#14B8A6;
+  --yellow:#EAB308;--red:#EF4444;
+  --text:#1a1a1a;--text-muted:#6B7280;--text-faint:#9CA3AF;
+  --border:#E5E7EB;--bg:#FAF9F7;--card:#FFFFFF;
+  --radius:16px;--radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* HEADER */
+.header{background:#fff;border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:var(--pink);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px}
+.logo-name{font-size:15px;font-weight:700;color:var(--text)}
+.logo-sub{font-size:11px;color:var(--text-muted);letter-spacing:.04em;text-transform:uppercase}
+
+/* HERO */
+.hero{padding:48px 40px 28px;max-width:1100px;margin:0 auto}
+.hero-label{font-size:11px;font-weight:700;color:var(--pink);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+.hero h1{font-size:40px;font-weight:800;color:var(--text);margin-bottom:10px;line-height:1.1}
+.hero p{font-size:16px;color:var(--text-muted);line-height:1.6;max-width:560px}
+
+/* FILTERS */
+.controls{padding:0 40px 20px;max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-btn{font-size:13px;font-weight:600;padding:7px 16px;border-radius:999px;border:2px solid var(--border);background:#fff;color:var(--text-muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+.filter-btn:hover{border-color:var(--pink);color:var(--pink)}
+.filter-btn.active{background:var(--pink);border-color:var(--pink);color:#fff}
+.filter-btn[data-filter="Quiz Builder"].active{background:#3B82F6;border-color:#3B82F6}
+.filter-btn[data-filter="Lesson Planner"].active{background:#10B981;border-color:#10B981}
+.filter-btn[data-filter="Classroom"].active{background:#8B5CF6;border-color:#8B5CF6}
+.filter-btn[data-filter="Magic Tools"].active{background:#F97316;border-color:#F97316}
+.filter-btn[data-filter="My School"].active{background:#14B8A6;border-color:#14B8A6}
+.filter-btn[data-filter="PT Homepage"].active{background:#EAB308;border-color:#EAB308}
+.filter-btn[data-filter="Teach Zone"].active{background:#06B6D4;border-color:#06B6D4}
+.filter-btn[data-filter="Others"].active{background:#6B7280;border-color:#6B7280}
+.search-wrap{margin-left:auto;position:relative}
+.search-wrap input{font-size:13px;padding:8px 16px 8px 36px;border-radius:999px;border:2px solid var(--border);background:#fff;color:var(--text);width:220px;outline:none;transition:border .15s}
+.search-wrap input:focus{border-color:var(--pink)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-faint);font-size:14px;pointer-events:none}
+
+/* RESULTS */
+.results-bar{padding:0 40px 16px;max-width:1100px;margin:0 auto;font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:12px}
+.cs-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:#FEF3C7;color:#92400E}
+
+/* GRID */
+.cards-grid{padding:0 40px;max-width:1100px;margin:0 auto 40px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.cards-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.cards-grid{grid-template-columns:1fr}.controls{flex-direction:column;align-items:flex-start}.search-wrap{margin-left:0;width:100%}.search-wrap input{width:100%}}
+
+/* LOAD MORE */
+.load-more-wrap{text-align:center;padding:0 40px 40px;max-width:1100px;margin:0 auto}
+.load-more-btn{font-size:14px;font-weight:600;padding:12px 32px;border-radius:999px;border:2px solid var(--border);background:#fff;color:var(--text-muted);cursor:pointer;transition:all .15s}
+.load-more-btn:hover{border-color:var(--pink);color:var(--pink)}
+
+/* CAT COLOURS */
+.cat-color-QB{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
+.cat-color-LP{background:#ECFDF5;color:#065F46;border-color:#A7F3D0}
+.cat-color-CL{background:#F5F3FF;color:#5B21B6;border-color:#DDD6FE}
+.cat-color-MT{background:#FFF7ED;color:#9A3412;border-color:#FED7AA}
+.cat-color-MS{background:#F0FDFA;color:#134E4A;border-color:#99F6E4}
+.cat-color-PT{background:#FEFCE8;color:#713F12;border-color:#FEF08A}
+.cat-color-TZ{background:#ECFEFF;color:#155E75;border-color:#A5F3FC}
+.cat-color-OT{background:#F9FAFB;color:#374151;border-color:#E5E7EB}
+
+/* LIVE CARD */
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s;cursor:pointer}
+.card:hover{box-shadow:0 8px 30px rgba(0,0,0,.1);transform:translateY(-3px)}
+
+/* THUMB */
+.thumb{position:relative;height:140px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.thumb-green{background:linear-gradient(135deg,#f0fdf8,#dcfce7)}
+.thumb-pink{background:linear-gradient(135deg,#fdf2f7,#fce7f3)}
+.thumb-grey{background:linear-gradient(135deg,#f9fafb,#f3f4f6)}
+.thumb-blue{background:linear-gradient(135deg,#eff6ff,#dbeafe)}
+.thumb-orange{background:linear-gradient(135deg,#fff7ed,#fed7aa)}
+.thumb-teal{background:linear-gradient(135deg,#f0fdfa,#ccfbf1)}
+.thumb-yellow{background:linear-gradient(135deg,#fefce8,#fef08a)}
+.thumb-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.08);border-radius:999px;padding:9px 20px;font-size:12px;font-weight:700;color:var(--text);letter-spacing:.06em;backdrop-filter:blur(6px);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.thumb-btn svg{width:11px;height:11px;fill:var(--text)}
+.type-badge{position:absolute;top:12px;left:12px;font-size:10px;font-weight:800;padding:4px 11px;border-radius:999px;letter-spacing:.05em;text-transform:uppercase}
+.badge-new{background:#10B981;color:#fff}
+.badge-improved{background:var(--pink);color:#fff}
+.badge-fix{background:#6B7280;color:#fff}
+.badge-others{background:#8B5CF6;color:#fff}
+
+/* CARD BODY */
+.card-body{padding:16px 18px;display:flex;flex-direction:column;flex:1}
+.card-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.cat-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;border:1.5px solid}
+.card-date{font-size:11px;color:var(--text-faint)}
+.card-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:7px;line-height:1.3}
+.card-desc{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-bullets{list-style:none;margin-bottom:10px}
+.card-bullets li{font-size:12px;color:var(--text-muted);padding-left:16px;position:relative;margin-bottom:5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.card-bullets li::before{content:"●";position:absolute;left:0;font-size:7px;top:4px;color:var(--pink)}
+
+/* DEMO TIP */
+.demo-tip{background:var(--green-light);border-left:3px solid var(--green);padding:9px 12px;border-radius:0 8px 8px 0;margin-bottom:10px}
+.demo-tip-label{font-size:10px;font-weight:800;color:var(--green-dark);letter-spacing:.07em;margin-bottom:3px}
+.demo-tip-text{font-size:11px;color:var(--green-dark);line-height:1.5;font-style:italic;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+/* LINKS */
+.card-links{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.card-link{font-size:11px;font-weight:500;padding:4px 11px;border-radius:999px;border:1.5px solid var(--border);color:var(--text-muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+.card-link:hover{border-color:var(--green);color:var(--green)}
+.read-more{font-size:13px;font-weight:700;color:var(--pink);text-decoration:none;margin-top:auto;display:inline-flex;align-items:center;gap:4px}
+.read-more:hover{color:var(--pink-dark)}
+
+/* COMING SOON CARD */
+.card-cs{background:#fff;border:2px dashed #D1D5DB;border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;opacity:.7}
+.cs-thumb{height:140px;background:#F9FAFB;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.cs-spinner{width:30px;height:30px;border:3px solid #E5E7EB;border-top-color:#92400E;border-radius:50%;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cs-label{font-size:11px;font-weight:700;color:#9CA3AF;letter-spacing:.07em}
+.cs-body{padding:16px 18px;display:flex;flex-direction:column;flex:1}
+.cs-pill{font-size:10px;font-weight:800;padding:4px 11px;border-radius:999px;background:#FEF3C7;color:#92400E;display:inline-block;margin-bottom:8px;letter-spacing:.04em}
+.cs-title{font-size:16px;font-weight:700;color:#9CA3AF;margin-bottom:6px;line-height:1.3}
+.cs-desc{font-size:12px;color:#D1D5DB;line-height:1.5;margin-bottom:8px}
+.cs-note{font-size:11px;color:#9CA3AF;font-style:italic;margin-top:auto}
+
+/* SKELETON */
+.skel-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.skel-thumb{height:140px;background:#F3F4F6}
+.skel-body{padding:16px 18px}
+.skel-line{border-radius:6px;margin-bottom:9px;background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%;animation:shimmer 1.3s infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ERROR / EMPTY */
+.error-box{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:var(--radius);padding:16px 20px;margin:0 40px 20px;max-width:1100px;margin-left:auto;margin-right:auto;font-size:14px;color:#DC2626;display:none}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);font-size:15px;grid-column:1/-1}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">P</div>
+    <div>
+      <div class="logo-name">Pandai Teacher</div>
+      <div class="logo-sub">Product Update</div>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-label">Latest Updates</div>
+  <h1>Pandai Teacher Product Update</h1>
+  <p>For Pandai Internal Team — see what's new in Pandai Teacher, what improved, and what we fixed.</p>
+</div>
+
+<div class="controls">
+  <button class="filter-btn active" data-filter="All">All</button>
+  <button class="filter-btn" data-filter="Quiz Builder">Quiz Builder</button>
+  <button class="filter-btn" data-filter="Lesson Planner">Lesson Planner</button>
+  <button class="filter-btn" data-filter="Classroom">Classroom</button>
+  <button class="filter-btn" data-filter="Magic Tools">Magic Tools</button>
+  <button class="filter-btn" data-filter="My School">My School</button>
+  <button class="filter-btn" data-filter="PT Homepage">PT Homepage</button>
+  <button class="filter-btn" data-filter="Teach Zone">Teach Zone</button>
+  <button class="filter-btn" data-filter="Others">Others</button>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search updates...">
+  </div>
+</div>
+
+<div class="results-bar">
+  <span id="resultsCount">Loading updates...</span>
+  <span id="csCount" class="cs-pill" style="display:none"></span>
+</div>
+<div class="error-box" id="errorBox">⚠️ Could not load updates. Please refresh the page.</div>
+<div id="content"></div>
+<div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+  <button class="load-more-btn" id="loadMoreBtn">Load more</button>
+</div>
+
+<script>
+const SHEET_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSepM5QPEF3Xy3AFEol6_bu3FJA8-7paHSBq0V7YG1wEcOpu0cOU2dtTN38OgT2KA/pub?gid=932956266&single=true&output=csv";
+
+async function fetchCSV() {
+  // Try direct first (works if CORS allows it)
+  const proxies = [
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  ];
+  // Try direct
+  try {
+    const r = await fetch(SHEET_CSV + "&t=" + Date.now());
+    if (r.ok) { const t = await r.text(); if (t.includes(",")) return t; }
+  } catch(e) {}
+  // Try proxies
+  for (const p of proxies) {
+    try {
+      const r = await fetch(p(SHEET_CSV));
+      if (r.ok) { const t = await r.text(); if (t.includes(",")) return t; }
+    } catch(e) { continue; }
+  }
+  throw new Error("All fetch methods failed");
+}
+
+const CAT_COLORS = {
+  "Quiz Builder":   "QB",
+  "Lesson Planner": "LP",
+  "Classroom":      "CL",
+  "Magic Tools":    "MT",
+  "My School":      "MS",
+  "PT Homepage":    "PT",
+  "Teach Zone":     "TZ",
+  "Others":         "OT",
+};
+
+const CAT_THUMBS = {
+  "Quiz Builder":   "thumb-blue",
+  "Lesson Planner": "thumb-green",
+  "Classroom":      "thumb-pink",
+  "Magic Tools":    "thumb-orange",
+  "My School":      "thumb-teal",
+  "PT Homepage":    "thumb-yellow",
+  "Teach Zone":     "thumb-blue",
+  "Others":         "thumb-grey",
+};
+
+let all = [], activeFilter = "All", searchQ = "", visibleCount = 6;
+
+// ── FETCH ────────────────────────────────────────────────────────────────
+async function load() {
+  showSkeletons();
+  try {
+    const text = await fetchCSV();
+    const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+    all = parsed.data
+      .filter(r => (r.Title || r["Title"] || "").trim())
+      .map(r => ({
+        pm:           val(r, ["Product Manager Name","Product Manager\nName"]),
+        title:        val(r, ["Title"]),
+        category:     val(r, ["Feature Category","Category"]),
+        type:         val(r, ["Type"]).toUpperCase(),
+        date:         val(r, ["Date","Date\n(DD MMM YYYY)"]),
+        description:  val(r, ["Description"]),
+        bullets:      [
+                        val(r, ["Bullet 1","Bullet1"]),
+                        val(r, ["Bullet 2","Bullet2"]),
+                        val(r, ["Bullet 3","Bullet3"])
+                      ].filter(Boolean),
+        demoTip:      val(r, ["DemoTip"]),
+        slackLink:    val(r, ["SlackLinkUpdate","SlackLink"]),
+        screenRecord: val(r, ["PMs Screen Record Link","PMs Screen\nRecord Link","ScreenRecordLink"]),
+        demoVideo:    val(r, ["Demo Video Link (Ain's Video)","Demo Video Link\n(Ain's Video)","DemoVideoLink"]),
+        status:       val(r, ["DemoVideoStatus","DemoVideo\nStatus","DemoVideo Status"]).toUpperCase() || "DRAFT",
+      }))
+      .filter(r => r.status === "LIVE" || r.status === "COMING SOON")
+      .sort((a, b) => parseDate(b.date) - parseDate(a.date));
+    render();
+  } catch(e) {
+    document.getElementById("errorBox").style.display = "block";
+    document.getElementById("content").innerHTML = "";
+    document.getElementById("resultsCount").textContent = "";
+  }
+}
+
+function val(r, keys) {
+  for (const k of keys) { if (r[k] !== undefined && r[k] !== null) return r[k].trim(); }
+  return "";
+}
+
+function parseDate(s) {
+  if (!s) return 0;
+  const months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  const p = s.split(" ");
+  if (p.length === 3) {
+    const m = months[p[1].toLowerCase().slice(0,3)];
+    if (m !== undefined) return new Date(+p[2], m, +p[0]).getTime();
+  }
+  const d = new Date(s);
+  return isNaN(d) ? 0 : d.getTime();
+}
+
+// ── FILTER ───────────────────────────────────────────────────────────────
+function getFiltered() {
+  return all.filter(u => {
+    const mf = activeFilter === "All" || u.category === activeFilter;
+    const q  = searchQ.toLowerCase();
+    const ms = !q || u.title.toLowerCase().includes(q) || u.description.toLowerCase().includes(q);
+    return mf && ms;
+  });
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────
+function render() {
+  const filtered  = getFiltered();
+  const live      = filtered.filter(u => u.status === "LIVE");
+  const cs        = filtered.filter(u => u.status === "COMING SOON");
+  const combined  = [...live, ...cs];
+  const visible   = combined.slice(0, visibleCount);
+
+  // Results bar
+  document.getElementById("resultsCount").textContent =
+    `Showing ${Math.min(visibleCount, combined.length)} of ${combined.length} updates`;
+  const csEl = document.getElementById("csCount");
+  if (cs.length) { csEl.textContent = `${cs.length} coming soon`; csEl.style.display = "inline-block"; }
+  else csEl.style.display = "none";
+
+  // Load more
+  const lmw = document.getElementById("loadMoreWrap");
+  lmw.style.display = visibleCount < combined.length ? "block" : "none";
+
+  if (combined.length === 0) {
+    document.getElementById("content").innerHTML =
+      `<div class="cards-grid"><div class="empty-state">No updates in this category yet.</div></div>`;
+    return;
+  }
+
+  let html = `<div class="cards-grid">`;
+  visible.forEach(u => {
+    html += u.status === "LIVE" ? buildCard(u) : buildCSCard(u);
+  });
+  html += `</div>`;
+  document.getElementById("content").innerHTML = html;
+}
+
+// ── LIVE CARD ─────────────────────────────────────────────────────────────
+function buildCard(u) {
+  const type       = u.type === "IMPROVED" ? "improved" : u.type === "FIX/BUGS" ? "fix" : u.type === "OTHERS" ? "others" : "new";
+  const badgeLabel = type === "improved" ? "IMPROVED" : type === "fix" ? "FIX" : type === "others" ? "OTHERS" : "NEW";
+  const thumbBg    = CAT_THUMBS[u.category] || "thumb-green";
+  const catCode    = CAT_COLORS[u.category] || "OT";
+  const hasVid     = !!u.demoVideo;
+  const hasSR      = !!u.screenRecord;
+  const thumbHref  = u.demoVideo || u.screenRecord || "#";
+  const thumbLabel = hasVid ? "▶ WALKTHROUGH VIDEO" : hasSR ? "SCREENSHOT PREVIEW" : "";
+  const dateLabel  = u.date ? `Updated ${timeAgo(u.date)}` : "";
+
+  const bullets = u.bullets.length
+    ? `<ul class="card-bullets">${u.bullets.map(b=>`<li>${esc(b)}</li>`).join("")}</ul>` : "";
+  const tip = u.demoTip
+    ? `<div class="demo-tip"><div class="demo-tip-label">📣 DEMO TIP</div><div class="demo-tip-text">${esc(u.demoTip)}</div></div>` : "";
+  const links = [
+    u.demoVideo    ? `<a class="card-link" href="${esc(u.demoVideo)}" target="_blank" onclick="event.stopPropagation()">🎬 Demo video</a>` : "",
+    u.screenRecord ? `<a class="card-link" href="${esc(u.screenRecord)}" target="_blank" onclick="event.stopPropagation()">🎥 Screen record</a>` : "",
+    u.slackLink    ? `<a class="card-link" href="${esc(u.slackLink)}" target="_blank" onclick="event.stopPropagation()">💬 Slack post</a>` : "",
+  ].filter(Boolean).join("");
+
+  return `<div class="card">
+    <a class="thumb ${thumbBg}" href="${thumbHref}" target="_blank" onclick="event.stopPropagation()" ${!hasVid&&!hasSR?'style="pointer-events:none"':""}>
+      <span class="type-badge badge-${type}">${badgeLabel}</span>
+      ${thumbLabel ? `<div class="thumb-btn"><svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg>${thumbLabel}</div>` : ""}
+    </a>
+    <div class="card-body">
+      <div class="card-meta">
+        <span class="cat-tag cat-color-${catCode}">${esc(u.category)}</span>
+        <span class="card-date">${dateLabel}</span>
+      </div>
+      <div class="card-title">${esc(u.title)}</div>
+      <div class="card-desc">${esc(u.description)}</div>
+      ${bullets}${tip}
+      ${links ? `<div class="card-links">${links}</div>` : ""}
+      ${u.slackLink ? `<a class="read-more" href="${esc(u.slackLink)}" target="_blank" onclick="event.stopPropagation()">Read full update →</a>` : ""}
+    </div>
+  </div>`;
+}
+
+// ── COMING SOON CARD ──────────────────────────────────────────────────────
+function buildCSCard(u) {
+  const catCode = CAT_COLORS[u.category] || "OT";
+  return `<div class="card-cs">
+    <div class="cs-thumb">
+      <div class="cs-spinner"></div>
+      <div class="cs-label">VIDEO BEING PREPARED</div>
+    </div>
+    <div class="cs-body">
+      <div class="cs-pill">⏳ COMING SOON</div>
+      <div class="card-meta">
+        <span class="cat-tag cat-color-${catCode}">${esc(u.category)}</span>
+        <span class="card-date">${u.date}</span>
+      </div>
+      <div class="cs-title">${esc(u.title)}</div>
+      <div class="cs-desc">${esc(u.description)}</div>
+      <div class="cs-note">Demo video is being recorded. Full card will appear when ready.</div>
+    </div>
+  </div>`;
+}
+
+// ── SKELETONS ─────────────────────────────────────────────────────────────
+function showSkeletons() {
+  const s = Array(6).fill(0).map(()=>`
+    <div class="skel-card">
+      <div class="skel-thumb skel-line" style="animation:shimmer 1.3s infinite;background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);background-size:200% 100%"></div>
+      <div class="skel-body">
+        <div class="skel-line" style="width:40%;height:11px"></div>
+        <div class="skel-line" style="width:85%;height:17px;margin-bottom:10px"></div>
+        <div class="skel-line" style="width:100%;height:11px"></div>
+        <div class="skel-line" style="width:90%;height:11px"></div>
+        <div class="skel-line" style="width:60%;height:11px"></div>
+      </div>
+    </div>`).join("");
+  document.getElementById("content").innerHTML = `<div class="cards-grid">${s}</div>`;
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function timeAgo(s) {
+  const d = parseDate(s);
+  if (!d) return s;
+  const days = Math.floor((Date.now() - d) / 86400000);
+  if (days === 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7)  return `${days} days ago`;
+  if (days < 30) return `${Math.floor(days/7)} week${Math.floor(days/7)>1?"s":""} ago`;
+  if (days < 365)return `${Math.floor(days/30)} month${Math.floor(days/30)>1?"s":""} ago`;
+  return s;
+}
+
+// ── EVENTS ────────────────────────────────────────────────────────────────
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter = btn.dataset.filter;
+    visibleCount = 6;
+    render();
+  });
+});
+
+document.getElementById("searchInput").addEventListener("input", e => {
+  searchQ = e.target.value;
+  visibleCount = 6;
+  render();
+});
+
+document.getElementById("loadMoreBtn").addEventListener("click", () => {
+  visibleCount += 6;
+  render();
+});
+
+load();
+</script>
+</body>
+</html>
