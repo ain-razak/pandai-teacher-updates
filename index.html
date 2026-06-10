@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pandai Teacher — Product Update</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.0/papaparse.min.js"></script>
+<style>
+:root{
+  --pt-pink:#FF5C98;--pt-pink-light:#FFF0F6;--pt-pink-mid:#FFB3D0;
+  --pt-green:#1DB77D;--pt-green-light:#E6F9F2;
+  --pt-text:#2D2D2D;--pt-muted:#7B7B8D;--pt-faint:#B0B0BE;
+  --pt-bg:#F8F8FA;--pt-white:#FFFFFF;--pt-border:#EEEEF2;
+  --pt-radius:12px;--pt-pill:999px;
+  --font:'Poppins',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--pt-bg);color:var(--pt-text);min-height:100vh}
+
+/* NAV */
+.nav{background:var(--pt-white);border-bottom:1px solid var(--pt-border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.nav-left{display:flex;align-items:center;gap:12px}
+.nav-logo{height:32px;width:auto;display:block}
+.nav-divider{width:1px;height:28px;background:var(--pt-border);flex-shrink:0}
+.nav-title-main{font-size:13px;font-weight:700;color:var(--pt-text);line-height:1.1}
+.nav-title-sub{font-size:10px;font-weight:500;color:var(--pt-muted);letter-spacing:.06em;text-transform:uppercase}
+@media(max-width:600px){.nav{padding:0 16px}}
+
+/* HERO */
+.hero{padding:36px 40px 20px;max-width:1100px;margin:0 auto}
+.hero-label{font-size:10px;font-weight:600;color:var(--pt-green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.hero h1{font-size:32px;font-weight:700;color:var(--pt-text);margin-bottom:8px;line-height:1.15}
+.hero p{font-size:14px;color:var(--pt-muted);line-height:1.6;max-width:520px}
+
+/* SEARCH */
+.search-wrap{padding:0 40px 20px;max-width:1100px;margin:0 auto}
+.search-row{display:flex;gap:10px;align-items:center}
+.search-input{flex:1;font-family:var(--font);font-size:14px;padding:14px 20px;border-radius:var(--pt-pill);border:1.5px solid var(--pt-border);background:var(--pt-white);color:var(--pt-text);outline:none;transition:border .15s}
+.search-input:focus{border-color:var(--pt-pink)}
+.search-btn{font-family:var(--font);font-size:13px;font-weight:600;padding:14px 28px;border-radius:var(--pt-pill);border:none;background:var(--pt-pink);color:#fff;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(255,92,152,.3);transition:all .15s}
+.search-btn:hover{background:#e04880;box-shadow:0 4px 14px rgba(255,92,152,.4)}
+
+/* SECTION LABEL */
+.sec-label{font-size:10px;font-weight:600;color:var(--pt-muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.sec-label::after{content:"";flex:1;height:1px;background:var(--pt-border)}
+
+/* CARDS GRID */
+.section-wrap{padding:0 40px;max-width:1100px;margin:0 auto 8px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:8px}
+@media(max-width:860px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.section-wrap{padding:0 16px}.search-wrap{padding:0 16px 16px}.hero{padding:24px 16px 16px}}
+
+/* CARD */
+.card{background:var(--pt-white);border:1px solid var(--pt-border);border-radius:var(--pt-radius);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);transition:box-shadow .2s,transform .2s;display:flex;flex-direction:column}
+.card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);transform:translateY(-2px)}
+
+/* THUMB */
+.thumb{position:relative;height:110px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.th-lp{background:linear-gradient(135deg,#E6F9F2,#B8EDD8)}
+.th-qb{background:linear-gradient(135deg,#EEF4FF,#D0DFFF)}
+.th-cl{background:linear-gradient(135deg,#F2EDFF,#E0D4FF)}
+.th-mt{background:linear-gradient(135deg,#FFF4E6,#FFD9A8)}
+.th-tz{background:linear-gradient(135deg,#FFF0F6,#FFD6E8)}
+.th-el{background:linear-gradient(135deg,#E6F0FF,#C0DEFF)}
+.th-ms{background:linear-gradient(135deg,#E6FAF8,#B8EDE9)}
+.th-hp{background:linear-gradient(135deg,#FEFCE8,#FDE68A)}
+.th-ot{background:linear-gradient(135deg,#F5F5F5,#E5E5E5)}
+/* PINK PILL BUTTON — same on both big cards and list rows */
+.play-pill{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--pt-pill);border:1.5px solid var(--pt-pink);background:var(--pt-pink-light);color:var(--pt-pink);font-family:var(--font);font-size:10px;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .15s;text-decoration:none}
+.play-pill:hover{background:var(--pt-pink);color:#fff}
+.play-pill svg{width:11px;height:11px;fill:currentColor;flex-shrink:0}
+.type-badge{position:absolute;top:8px;left:8px;font-family:var(--font);font-size:8px;font-weight:700;padding:3px 9px;border-radius:var(--pt-pill);letter-spacing:.05em}
+.new-sticker{position:absolute;top:8px;right:8px;font-family:var(--font);font-size:8px;font-weight:700;padding:3px 9px;border-radius:var(--pt-pill);background:var(--pt-pink-light);color:var(--pt-pink);border:1px solid var(--pt-pink-mid);letter-spacing:.04em}
+.b-new{background:var(--pt-green);color:#fff}
+.b-imp{background:var(--pt-pink);color:#fff}
+.b-fix{background:#888;color:#fff}
+.b-oth{background:#7C3AED;color:#fff}
+
+/* CARD BODY */
+.cbody{padding:12px 14px;display:flex;flex-direction:column;flex:1}
+.cat-pill{font-family:var(--font);font-size:9px;font-weight:600;padding:3px 9px;border-radius:var(--pt-pill);border:1px solid;display:inline-block;margin-bottom:6px;white-space:nowrap}
+.cp-lp{background:#E6F9F2;color:#0A7A50;border-color:#7DDCB5}
+.cp-qb{background:#EEF4FF;color:#2244BB;border-color:#A0BCFF}
+.cp-cl{background:#F2EDFF;color:#5B21B6;border-color:#C4ACFF}
+.cp-mt{background:#FFF4E6;color:#8B4A0A;border-color:#FFB870}
+.cp-tz{background:#FFF0F6;color:#9C1360;border-color:#FFB3D0}
+.cp-el{background:#E6F0FF;color:#1A4FAA;border-color:#90B8FF}
+.cp-ms{background:#E6FAF8;color:#0A6E68;border-color:#7DD9D3}
+.cp-hp{background:#FEFCE8;color:#854D0E;border-color:#FDE68A}
+.cp-ot{background:#F5F5F5;color:#555;border-color:#DDD}
+.card-date{font-size:10px;color:var(--pt-faint);margin-bottom:6px}
+.card-title{font-size:13px;font-weight:600;color:var(--pt-text);margin-bottom:5px;line-height:1.35}
+.card-desc{font-size:11px;color:var(--pt-muted);line-height:1.6;margin-bottom:6px}
+.card-bullets{list-style:none;margin-bottom:0}
+.card-bullets li{font-size:11px;color:var(--pt-muted);padding-left:12px;position:relative;margin-bottom:3px;line-height:1.4}
+.card-bullets li::before{content:"●";position:absolute;left:0;font-size:5px;top:4px;color:var(--pt-pink)}
+
+/* FILTER BLOCK */
+.filter-block{background:var(--pt-white);border:1px solid var(--pt-border);border-radius:var(--pt-radius);padding:14px 16px;margin:12px 0 16px}
+.filter-block-label{font-size:10px;font-weight:600;color:var(--pt-muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px}
+.filters{display:flex;gap:7px;flex-wrap:wrap}
+.ftab{font-family:var(--font);font-size:11px;font-weight:500;padding:6px 14px;border-radius:var(--pt-pill);border:1.5px solid var(--pt-border);background:var(--pt-white);color:var(--pt-muted);cursor:pointer;transition:all .15s}
+.ftab:hover{border-color:var(--pt-pink);color:var(--pt-pink)}
+.ftab.active{background:var(--pt-pink);border-color:var(--pt-pink);color:#fff;box-shadow:0 2px 6px rgba(255,92,152,.25)}
+
+/* LIST ROWS */
+.list-row{display:flex;align-items:stretch;gap:14px;padding:14px 16px;border:1px solid var(--pt-border);border-radius:var(--pt-radius);margin-bottom:10px;background:var(--pt-white);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .15s,border-color .15s}
+.list-row:hover{border-color:var(--pt-pink-mid);box-shadow:0 3px 14px rgba(255,92,152,.12)}
+.list-left{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;width:72px;padding-top:1px}
+.list-left .type-badge{position:static}
+.list-date{font-size:9px;color:var(--pt-faint);text-align:center;margin-top:2px}
+.list-body{flex:1;min-width:0}
+.list-title{font-size:13px;font-weight:600;color:var(--pt-text);margin-bottom:4px;line-height:1.3}
+.list-desc{font-size:11px;color:var(--pt-muted);line-height:1.55;margin-bottom:6px}
+.list-bullets{list-style:none;margin:0}
+.list-bullets li{font-size:11px;color:var(--pt-muted);padding-left:12px;position:relative;margin-bottom:3px;line-height:1.4}
+.list-bullets li::before{content:"●";position:absolute;left:0;font-size:5px;top:4px;color:var(--pt-pink)}
+.list-right{flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;min-width:130px}
+/* List row video button — identical style to big card play pill */
+.vid-btn{display:flex;align-items:center;gap:7px;padding:11px 16px;border-radius:var(--pt-pill);border:1.5px solid var(--pt-pink);background:var(--pt-pink-light);color:var(--pt-pink);font-family:var(--font);font-size:11px;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .15s;text-decoration:none}
+.vid-btn:hover{background:var(--pt-pink);color:#fff}
+.vid-btn svg{width:13px;height:13px;fill:currentColor;flex-shrink:0}
+.no-vid{display:flex;align-items:center;gap:6px;padding:11px 14px;border-radius:var(--pt-pill);border:1.5px solid var(--pt-border);background:var(--pt-bg);color:var(--pt-faint);font-family:var(--font);font-size:11px;font-weight:500;white-space:nowrap}
+.back-btn{font-family:var(--font);font-size:14px;font-weight:600;padding:14px 32px;border-radius:var(--pt-pill);border:none;background:var(--pt-pink);color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(255,92,152,.35);transition:all .15s}
+.back-btn:hover{background:#e04880;box-shadow:0 6px 18px rgba(255,92,152,.45);transform:translateY(-1px)}
+
+/* SKELETON */
+.skel{background:linear-gradient(90deg,#F3F4F6 25%,#E9EAEC 50%,#F3F4F6 75%);background-size:200% 100%;animation:shimmer 1.3s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{background:var(--pt-white);border:1px solid var(--pt-border);border-radius:var(--pt-radius);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.skel-thumb{height:110px}
+.skel-body{padding:12px 14px}
+.skel-line{border-radius:4px;margin-bottom:8px}
+
+/* ERROR / EMPTY */
+.error-box{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:var(--pt-radius);padding:16px 20px;margin-bottom:20px;font-size:13px;color:#DC2626;display:none}
+.empty-state{text-align:center;padding:48px 20px;color:var(--pt-muted);font-size:14px;grid-column:1/-1}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-left">
+    <img id="nav-logo-img" class="nav-logo"
+      src="https://my.pandai.org/teachers/pandai-teacher-logo.png"
+      alt="Pandai Teacher logo">
+    <div class="nav-divider"></div>
+    <div>
+      <div class="nav-title-main">Pandai Teacher</div>
+      <div class="nav-title-sub">Product Update</div>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">Latest Updates</div>
+  <h1>Every change, in one place</h1>
+  <p>For Pandai internal team — see what's new in Pandai Teacher, what improved, and what we fixed.</p>
+</div>
+
+<div class="search-wrap">
+  <div class="search-row">
+    <input class="search-input" type="text" id="searchInput" placeholder="Type to search or filter">
+    <button class="search-btn" id="searchBtn">Search</button>
+  </div>
+</div>
+
+<div class="section-wrap">
+  <div class="error-box" id="errorBox">⚠️ Could not load updates. Please refresh the page.</div>
+  <div id="content"></div>
+</div>
+
+<script>
+const SHEET_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSepM5QPEF3Xy3AFEol6_bu3FJA8-7paHSBq0V7YG1wEcOpu0cOU2dtTN38OgT2KA/pub?gid=932956266&single=true&output=csv";
+
+const PROXIES = [
+  u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+];
+
+const CAT_CLASS = {
+  "Lesson Planner":"lp","Quiz Builder":"qb","Classroom":"cl","Magic Tools":"mt",
+  "Teach Zone":"tz","eLADAP":"el","My School":"ms","Homepage":"hp","PT Homepage":"hp","Others":"ot"
+};
+const CAT_THUMB = {
+  "Lesson Planner":"th-lp","Quiz Builder":"th-qb","Classroom":"th-cl","Magic Tools":"th-mt",
+  "Teach Zone":"th-tz","eLADAP":"th-el","My School":"th-ms","Homepage":"th-hp","PT Homepage":"th-hp","Others":"th-ot"
+};
+const FILTER_ORDER = ["All","Magic Tools","Lesson Planner","Teach Zone","Quiz Builder","Classroom","eLADAP","My School","Homepage","Others"];
+
+let all = [], activeFilter = "All", searchQ = "";
+
+// ── FETCH ─────────────────────────────────────────
+async function fetchCSV() {
+  const url = SHEET_CSV + "&t=" + Date.now();
+  try {
+    const r = await fetch(url);
+    if (r.ok) { const t = await r.text(); if (t.includes(",")) return t; }
+  } catch(e) {}
+  for (const proxy of PROXIES) {
+    try {
+      const r = await fetch(proxy(SHEET_CSV));
+      if (r.ok) { const t = await r.text(); if (t.includes(",")) return t; }
+    } catch(e) { continue; }
+  }
+  throw new Error("Failed");
+}
+
+async function load() {
+  showSkeletons();
+  try {
+    const text = await fetchCSV();
+    const lines = text.split("\n");
+    const dataFromRow3 = lines.slice(2).join("\n");
+    const parsed = Papa.parse(dataFromRow3, { header: true, skipEmptyLines: true });
+    all = parsed.data
+      .filter(r => v(r,["Title"]).length > 0)
+      .map(r => ({
+        title:        v(r,["Title"]),
+        category:     v(r,["Feature Category","Category"]),
+        type:         v(r,["Type"]).toUpperCase(),
+        date:         v(r,["Date","Date\n(DD MMM YYYY)"]),
+        description:  v(r,["Description"]),
+        bullets:      [v(r,["Bullet 1","Bullet1"]),v(r,["Bullet 2","Bullet2"]),v(r,["Bullet 3","Bullet3"])].filter(Boolean),
+        demoVideo:    v(r,["Demo Video Link\n(Ain's Video)","Demo Video Link (Ain's Video)","DemoVideoLink"]),
+        status:       v(r,["DemoVideoStatus","DemoVideo\nStatus","DemoVideo Status"]).toUpperCase() || "DRAFT",
+      }))
+      .filter(r => r.status === "LIVE")
+      .sort((a,b) => parseDate(b.date) - parseDate(a.date));
+    buildFilters();
+    render();
+  } catch(e) {
+    document.getElementById("errorBox").style.display = "block";
+    document.getElementById("content").innerHTML = "";
+  }
+}
+
+function v(r, keys) {
+  for (const k of keys) { if (r[k] !== undefined && r[k] !== null && r[k].trim() !== "") return r[k].trim(); }
+  return "";
+}
+
+function parseDate(s) {
+  if (!s) return 0;
+  const mo = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  const p = s.trim().split(" ");
+  if (p.length === 3) {
+    const m = mo[p[1].toLowerCase().slice(0,3)];
+    if (m !== undefined) return new Date(+p[2], m, +p[0]).getTime();
+  }
+  const d = new Date(s);
+  return isNaN(d) ? 0 : d.getTime();
+}
+
+function timeAgo(s) {
+  const d = parseDate(s);
+  if (!d) return s;
+  const days = Math.floor((Date.now() - d) / 86400000);
+  if (days <= 0) return "today";
+  if (days === 1) return "yesterday";
+  if (days < 7) return `${days} days ago`;
+  if (days < 30) return `${Math.floor(days/7)} week${Math.floor(days/7)>1?"s":""} ago`;
+  if (days < 365) return `${Math.floor(days/30)} month${Math.floor(days/30)>1?"s":""} ago`;
+  return s;
+}
+
+function isNew(s) {
+  const d = parseDate(s);
+  if (!d) return false;
+  return (Date.now() - d) < 30 * 24 * 60 * 60 * 1000;
+}
+
+// ── FILTERS ───────────────────────────────────────
+function buildFilters() {
+  const el = document.getElementById("filter-tabs");
+  if (!el) return;
+  el.innerHTML = FILTER_ORDER.map(f =>
+    `<div class="ftab${f===activeFilter?" active":""}" data-filter="${f}">${f}</div>`
+  ).join("");
+  el.querySelectorAll(".ftab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeFilter = btn.dataset.filter;
+      el.querySelectorAll(".ftab").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    });
+  });
+}
+
+function getFiltered() {
+  return all.filter(u => {
+    const cat = u.category === "PT Homepage" ? "Homepage" : u.category;
+    const mf = activeFilter === "All" || cat === activeFilter;
+    const q = searchQ.toLowerCase();
+    const ms = !q || u.title.toLowerCase().includes(q) || u.description.toLowerCase().includes(q);
+    return mf && ms;
+  });
+}
+
+// ── RENDER ────────────────────────────────────────
+function render() {
+  const filtered = getFiltered();
+  const newCards = filtered.filter(u => isNew(u.date));
+  const oldCards = filtered.filter(u => !isNew(u.date));
+
+  if (filtered.length === 0) {
+    document.getElementById("content").innerHTML =
+      `<div class="sec-label">No updates found</div>
+       <div style="text-align:center;padding:56px 20px 48px">
+         <div style="font-size:15px;color:var(--pt-muted);margin-bottom:24px">No updates match your search or filter.</div>
+         <button class="back-btn" onclick="resetAll()">Back to main page</button>
+       </div>`;
+    return;
+  }
+
+  let html = "";
+
+  if (newCards.length > 0) {
+    html += `<div class="sec-label">Latest — within 30 days</div>
+      <div class="grid">`;
+    newCards.forEach(u => { html += buildCard(u, true); });
+    html += `</div>`;
+  }
+
+  html += `<div class="filter-block">
+    <div class="filter-block-label">Filter by feature</div>
+    <div class="filters" id="filter-tabs"></div>
+  </div>`;
+
+  if (oldCards.length > 0) {
+    html += `<div class="sec-label">Older updates</div>`;
+    oldCards.forEach(u => { html += buildListRow(u); });
+  }
+
+  document.getElementById("content").innerHTML = html;
+  buildFilters();
+}
+
+// ── BIG CARD ──────────────────────────────────────
+function buildCard(u, showNew) {
+  const type   = u.type === "IMPROVED" ? "imp" : u.type === "FIX/BUGS" ? "fix" : u.type === "OTHERS" ? "oth" : "new";
+  const label  = type === "imp" ? "IMPROVED" : type === "fix" ? "FIX" : type === "oth" ? "OTHERS" : "NEW";
+  const cat    = u.category === "PT Homepage" ? "Homepage" : u.category;
+  const cc     = CAT_CLASS[cat] || "ot";
+  const tc     = CAT_THUMB[cat] || "th-ot";
+  const bullets = u.bullets.length
+    ? `<ul class="card-bullets">${u.bullets.map(b=>`<li>${esc(b)}</li>`).join("")}</ul>` : "";
+  const playBtn = u.demoVideo
+    ? `<a class="play-pill" href="${esc(u.demoVideo)}" target="_blank" onclick="event.stopPropagation()">
+        <svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg> Walkthrough video
+       </a>`
+    : "";
+  const newBadge = showNew && isNew(u.date) ? `<span class="new-sticker">✦ NEW</span>` : "";
+
+  return `<div class="card">
+    <div class="thumb ${tc}">
+      <span class="type-badge b-${type}">${label}</span>
+      ${newBadge}
+      ${playBtn}
+    </div>
+    <div class="cbody">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;flex-wrap:wrap;gap:4px">
+        <span class="cat-pill cp-${cc}">${esc(cat)}</span>
+        <span class="card-date">${timeAgo(u.date)}</span>
+      </div>
+      <div class="card-title">${esc(u.title)}</div>
+      <div class="card-desc">${esc(u.description)}</div>
+      ${bullets}
+    </div>
+  </div>`;
+}
+
+// ── LIST ROW ──────────────────────────────────────
+function buildListRow(u) {
+  const type  = u.type === "IMPROVED" ? "imp" : u.type === "FIX/BUGS" ? "fix" : u.type === "OTHERS" ? "oth" : "new";
+  const label = type === "imp" ? "IMPROVED" : type === "fix" ? "FIX" : type === "oth" ? "OTHERS" : "NEW";
+  const cat   = u.category === "PT Homepage" ? "Homepage" : u.category;
+  const cc    = CAT_CLASS[cat] || "ot";
+  const bullets = u.bullets.length
+    ? `<ul class="list-bullets">${u.bullets.map(b=>`<li>${esc(b)}</li>`).join("")}</ul>` : "";
+  const vidBtn = u.demoVideo
+    ? `<a class="vid-btn" href="${esc(u.demoVideo)}" target="_blank" onclick="event.stopPropagation()">
+        <svg viewBox="0 0 12 12"><polygon points="2,1 11,6 2,11"/></svg> Walkthrough video
+       </a>`
+    : `<div class="no-vid">
+        <svg width="13" height="13" viewBox="0 0 12 12" fill="none" style="flex-shrink:0"><polygon points="2,1 11,6 2,11" fill="#B0B0BE"/></svg> No video yet
+       </div>`;
+
+  return `<div class="list-row">
+    <div class="list-left">
+      <span class="type-badge b-${type}">${label}</span>
+      <span class="cat-pill cp-${cc}" style="width:100%;text-align:center;font-size:8px;margin:0">${esc(cat)}</span>
+      <span class="list-date">${timeAgo(u.date)}</span>
+    </div>
+    <div class="list-body">
+      <div class="list-title">${esc(u.title)}</div>
+      <div class="list-desc">${esc(u.description)}</div>
+      ${bullets}
+    </div>
+    <div class="list-right">${vidBtn}</div>
+  </div>`;
+}
+
+// ── SKELETONS ─────────────────────────────────────
+function showSkeletons() {
+  const s = Array(6).fill(0).map(()=>`
+    <div class="skel-card">
+      <div class="skel-thumb skel"></div>
+      <div class="skel-body">
+        <div class="skel skel-line" style="width:38%;height:11px"></div>
+        <div class="skel skel-line" style="width:82%;height:15px;margin-bottom:10px"></div>
+        <div class="skel skel-line" style="width:100%;height:11px"></div>
+        <div class="skel skel-line" style="width:88%;height:11px"></div>
+        <div class="skel skel-line" style="width:60%;height:11px"></div>
+      </div>
+    </div>`).join("");
+  document.getElementById("content").innerHTML =
+    `<div class="sec-label">Latest — within 30 days</div><div class="grid">${s}</div>`;
+}
+
+function esc(s) {
+  return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ── SEARCH EVENTS ─────────────────────────────────
+document.getElementById("searchInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") { searchQ = e.target.value; render(); }
+});
+document.getElementById("searchBtn").addEventListener("click", () => {
+  searchQ = document.getElementById("searchInput").value;
+  render();
+});
+
+// ── LOGO FALLBACK ─────────────────────────────────
+const logoImg = document.getElementById("nav-logo-img");
+logoImg.onerror = function() {
+  this.style.display = "none";
+};
+
+load();
+</script>
+</body>
+</html>
